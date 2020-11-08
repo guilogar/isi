@@ -1,0 +1,6 @@
+[submodule "HomeAutomationSimulatorRefactor"]
+	path = HomeAutomationSimulatorRefactor
+	url = git@github.com:guilogar/HomeAutomationSimulatorRefactor.git
+[submodule "AutomationSimulator"]
+	path = AutomationSimulator
+	url = git@github.com:guilogar/AutomationSimulator.git

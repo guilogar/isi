@@ -1,0 +1,46 @@
+
+* 3 sistemas de riego, goteo, aspersores y aspersores de techo (pulverizador)
+
+* Acciones que se hacen a horas intempestivas:
+	- Regar durante 5 minutos en la noche a los chicharos.
+	- Abonar en el sistema de riego.
+	- Aplicar plaguicida en el sistema de riego.
+	- Aplicar hormonas de crecimiento en el sistema de riego.
+	- Ventilar invernadero estando en un invernadero inteligente.
+	- Aumentar la iluminación dentro de un invernadero, abriendo el techo o bien, encendiendo la luz artificial.
+	- Control de la temperatura dentro de un invernadero.
+
+* Variables a tener en cuenta:
+	- Temperatura ambiente
+	- Humedad en el aire y en el terreno
+	- Cantidad de litros por metro cuadrado (Cuando llueve demasiado, abrir el techo para quitar el agua embalsada del invernadero)
+	- Se abona cada 5 dias (potasa y abono) (goteo)
+	- Se pone plaguicida cada 5 dias (baifidan, azufre, sofato, veneno) (pulverizador)
+	- Se ponen hormonas de crecimiento una vez cada mes (engordone) (goteo)
+	- Ventilar invernadero sobre las 8:00 de la mañana para quitar la humedad de adentro (humedad > ?), salvo que haya neblina, viento
+	- Para aumentar la iluminacion, se forma normal no ha de estar lloviendo, si no se activa la luz artificial.
+	- Se aumenta la iluminacion por el dia para que favorezca la fotosintesis de la planta, y por la noche, tambien con la luz artificial.
+	- Se controla la temperatura a la estandar para el cultivo en cuestion
+
+	- sensorId
+	- roomTemperature
+	- airHumidity
+	- groundHumidity
+	- litrePerMeterWater
+	- windForce
+	- windDirection // N, S, E, O
+	- isRaining
+	- isCeilingGreenhouseOpen
+	- isWallGreenhouseOpen
+	- countIllumination
+	- isAtDaytime
+	- canPhotosynthesisImprove
+	
+
+
+
+	
+	- fertilizerTime
+	- pesticideTime
+	- hormoneTime
+	- ventilateGreenhouseTime

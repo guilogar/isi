@@ -1,0 +1,9 @@
+@Name("OpenCeilingGreenHouse") 
+insert into OpenCeilingGreenHouse 
+select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining
+from pattern [
+   every sr = SmartRural(
+      isAtDaytime = true,
+      isRaining = false
+   )
+]

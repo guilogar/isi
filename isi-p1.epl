@@ -1,9 +1,90 @@
+create schema SmartRural(
+   sensorId int, roomTemperature double, airHumidity double, groundHumidity double,
+   litrePerMeterWater double, windForce double, windDirection double, isRaining double,
+   isCeilingGreenhouseOpen double, isWallGreenhouseOpen double, countIllumination double,
+   isAtDaytime double, canPhotosynthesisImprove double
+);
+
 @Name("OpenCeilingGreenHouse") 
-insert into OpenCeilingGreenHouse 
+insert into OpenCeilingGreenHouse
 select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining
 from pattern [
    every sr = SmartRural(
-      isAtDaytime = true,
-      isRaining = false
+      isAtDaytime >= 0.5,
+      isRaining >= 0.5
    )
-]
+];
+
+@Name("Irrigate") 
+insert into Irrigate 
+select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+       sr.airHumidity as airHumidity, sr.roomTemperature as roomTemperature
+from pattern [
+    every
+        sr = SmartRural(
+            isAtDaytime >= 0.5,
+            isRaining < 0.5,
+            airHumidity >= 2.5,
+            roomTemperature < 25 // grade celsius
+        )
+];
+
+@Name("Fertilizer") 
+insert into Fertilizer 
+select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+       sr.airHumidity as airHumidity, sr.canPhotosynthesisImprove as canPhotosynthesisImprove
+from pattern [
+    every sr = SmartRural(
+        isAtDaytime >= 0.5,
+        isRaining >= 0.5,
+        airHumidity < 1,
+        canPhotosynthesisImprove >= 0.5
+    ) -> timer:at(1, *, *, *, *) // 1 min, TODO: change it to 5 days
+];
+
+@Name("isFertilizer")
+insert into isFertilizer
+select sensorId
+from Fertilizer.win:time_batch(1 min)
+group by sensorId;
+
+
+@Name("OpenWallGreenhouse") 
+insert into OpenWallGreenhouse 
+select sr.sensorId as sensorId, sr.windForce as windForce, sr.isRaining as isRaining,
+       sr.roomTemperature as roomTemperature
+from pattern [
+    every sr = SmartRural(
+        windForce < 0.5,
+        isRaining < 0.5,
+        roomTemperature > 25 // grade celcius
+    )
+].win:time_batch(1 minutes); // 1 min, TODO: change it to 1 hour
+
+@Name("CanOpenWallGreenhouse")
+insert into CanOpenWallGreenhouse
+select count(sensorId) as numEvents, (count(sensorId) > 1) as canOpen
+from OpenWallGreenhouse.win:time_batch(1 min)
+group by sensorId
+having count(sensorId) > 1; // change to a number more big
+
+// data
+%esperscenario
+
+SmartRural={sensorId= 1, isAtDaytime = 0.7, isRaining = 0.9, airHumidity = 0.2, canPhotosynthesisImprove = 0.9}
+SmartRural={sensorId= 2, isAtDaytime = 0.7, isRaining = 0.9, airHumidity = 0.2, canPhotosynthesisImprove = 0.9}
+SmartRural={sensorId= 3, isAtDaytime = 0.7, isRaining = 0.9, airHumidity = 0.2, canPhotosynthesisImprove = 0.9}
+SmartRural={sensorId= 3, isAtDaytime = 0.7, isRaining = 0.9, airHumidity = 0.2, canPhotosynthesisImprove = 0.9}
+
+t=t.plus(2 min)
+
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+SmartRural={sensorId = 1, windForce = 0.3, isRaining = 0.3, roomTemperature = 30}
+
+t=t.plus(2 min)

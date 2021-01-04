@@ -42,14 +42,13 @@ from pattern [
     ) -> timer:at(1, *, *, *, *) // 1 min, TODO: change it to 5 days
 ];
 
-@Name("isFertilizer")
-insert into isFertilizer
+@Name("canFertilizer")
+insert into canFertilizer
 select sensorId
 from Fertilizer.win:time_batch(1 min)
 group by sensorId;
 
-
-@Name("OpenWallGreenhouse") 
+@Name("OpenWallGreenhouse")
 insert into OpenWallGreenhouse 
 select sr.sensorId as sensorId, sr.windForce as windForce, sr.isRaining as isRaining,
        sr.roomTemperature as roomTemperature

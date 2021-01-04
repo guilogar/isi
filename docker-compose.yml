@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  smartrural:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'smartrural'
+      MYSQL_USER: isi
+      MYSQL_PASSWORD: 'isi'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - smartrural:/var/lib/mysql
+volumes:
+  smartrural:

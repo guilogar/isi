@@ -23,7 +23,7 @@ import org.mule.transformer.AbstractMessageTransformer;
  *
  */
 @ContainsTransformerMethods
-public class JsonToHomeEventTransformer extends AbstractMessageTransformer
+public class JsonToSmartRuralTransformer extends AbstractMessageTransformer
 {
 	static DecimalFormat df2 = new DecimalFormat("#,00");
 

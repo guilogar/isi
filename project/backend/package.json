@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend for isi project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guilogar/isi.git"
+  },
+  "author": "Guillermo López García",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/guilogar/isi/issues"
+  },
+  "homepage": "https://github.com/guilogar/isi#readme"
+}

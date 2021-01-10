@@ -1,19 +1,23 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "backend for isi project",
+  "description": "Backend for isi subject",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "start": "node ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/guilogar/isi.git"
-  },
+  "repository": "https://github.com/guilogar/isi",
   "author": "Guillermo López García",
-  "license": "GPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/guilogar/isi/issues"
+  "license": "MIT",
+  "engines": {
+    "node": "14.x"
   },
-  "homepage": "https://github.com/guilogar/isi#readme"
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.3.3",
+    "sequelize": "^6.3.5"
+  }
 }

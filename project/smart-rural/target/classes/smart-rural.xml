@@ -18,7 +18,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<vm:connector name="VM" validateConnections="true" doc:name="VM"/>
 	<vm:endpoint exchange-pattern="one-way" path="ComplexEventConsumerPath" name="ComplexEventConsumerGlobalVM" doc:name="VM"/>
 	<db:mysql-config name="MySQL_Configuration" host="127.0.0.1" port="3306" user="isi" password="isi" database="smartrural" doc:name="MySQL Configuration"/>
-    <flow name="home-automation-exampleFlow">
+    <flow name="smartruralFlow">
         <quartz:inbound-endpoint jobName="j1" repeatInterval="60000" responseTimeout="10000" doc:name="Quartz">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
@@ -50,7 +50,7 @@ values(
 			</component>
 		</scatter-gather>
     </flow>
-	<flow name="home-automation-exampleFlow1">
+	<flow name="smartruralFlow1">
 		<vm:inbound-endpoint exchange-pattern="one-way"  doc:name="Complex Event Consumer" ref="ComplexEventConsumerGlobalVM">
 			<xa-transaction action="NONE"/>
 		</vm:inbound-endpoint>
@@ -111,8 +111,8 @@ values(
 			</otherwise>
 		</choice>
 	</flow>
-	<flow name="home-automation-exampleFlow2">
-		<file:inbound-endpoint path="/home/guilogar/event-patterns" moveToDirectory="/home/guilogar/deployed-pattern" pollingFrequency="2000" fileAge="1000" responseTimeout="10000" doc:name="New EPL Event Pattern">
+	<flow name="smartruralFlow2">
+		<file:inbound-endpoint path="${patterns.path}/event-patterns" moveToDirectory="${patterns.path}/deployed-pattern" pollingFrequency="2000" fileAge="1000" responseTimeout="10000" doc:name="New EPL Event Pattern">
 			<file:filename-regex-filter pattern=".+\.epl" caseSensitive="true"/>
 		</file:inbound-endpoint>
 		<file:file-to-string-transformer doc:name="File to String"/>
@@ -121,7 +121,7 @@ values(
 		</component>
 		<choice-exception-strategy doc:name="Choice Exception Strategy">
 			<catch-exception-strategy when="exception.causeMatches('com.espertech.esper.*')" enableNotifications="false" logException="false" doc:name="Catch Exception Strategy">
-				<file:outbound-endpoint path="/home/guilogar/incorrect-pattern" responseTimeout="10000" doc:name="File"/>
+				<file:outbound-endpoint path="${patterns.path}/incorrect-pattern" responseTimeout="10000" doc:name="File"/>
 			</catch-exception-strategy>
 		</choice-exception-strategy>
 	</flow>

@@ -3,9 +3,12 @@ import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
+import SmartRural from './pages/SmartRural/SmartRural';
+import Events from './pages/Events/Events';
 
-import RouterSmartRural from './routers/smartrural';
-import RouterEvents from './routers/events';
+// import RouterSmartRural from './routers/smartrural';
+// import RouterEvents from './routers/events';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -34,8 +37,8 @@ const App: React.FC = () => {
         <IonSplitPane contentId="main">
           <Menu />
           <IonRouterOutlet id="main">
-            <RouterSmartRural />
-            <RouterEvents />
+            <Route path="/smartrural/:name" component={SmartRural} exact />
+            <Route path="/events/:name" component={Events} exact />
             <Redirect from="/" to="/smartrural" exact />
           </IonRouterOutlet>
         </IonSplitPane>

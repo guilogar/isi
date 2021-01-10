@@ -31,31 +31,31 @@ interface AppPage {
 const appPages: AppPage[] = [
   {
     title: 'SmartRural',
-    url: '/smartrural/sjhadbfhjasdbfj',
+    url: '/smartrural/SmartRural',
     iosIcon: earthOutline,
     mdIcon: earthSharp
   },
   {
     title: 'OpenCeilingGreenHouse',
-    url: '/page/OpenCeilingGreenHouse',
+    url: '/events/OpenCeilingGreenHouse',
     iosIcon: rainyOutline,
     mdIcon: rainySharp
   },
   {
     title: 'Irrigate',
-    url: '/page/Irrigate',
+    url: '/events/Irrigate',
     iosIcon: waterOutline,
     mdIcon: waterSharp
   },
   {
     title: 'CanFertilizer',
-    url: '/page/CanFertilizer',
+    url: '/events/CanFertilizer',
     iosIcon: eyedropOutline,
     mdIcon: eyedropSharp
   },
   {
     title: 'CanOpenWallGreenhouse',
-    url: '/page/CanOpenWallGreenhouse',
+    url: '/events/CanOpenWallGreenhouse',
     iosIcon: homeOutline,
     mdIcon: homeSharp
   }

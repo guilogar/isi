@@ -1,0 +1,13 @@
+@Name("Irrigate") 
+insert into Irrigate 
+select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+       sr.airHumidity as airHumidity, sr.roomTemperature as roomTemperature
+from pattern [
+    every
+        sr = SmartRural(
+            isAtDaytime >= 0.5,
+            isRaining < 0.5,
+            airHumidity >= 2.5,
+            roomTemperature < 25 // grade celsius
+        )
+];

@@ -1,0 +1,18 @@
+@Name("Fertilizer") 
+insert into Fertilizer 
+select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+       sr.airHumidity as airHumidity, sr.canPhotosynthesisImprove as canPhotosynthesisImprove
+from pattern [
+    every sr = SmartRural(
+        isAtDaytime >= 0.5,
+        isRaining >= 0.5,
+        airHumidity < 1,
+        canPhotosynthesisImprove >= 0.5
+    ) -> timer:at(1, *, *, *, *) // 1 min, TODO: change it to 5 days
+];
+
+@Name("CanFertilizer")
+insert into CanFertilizer
+select sensorId
+from Fertilizer.win:time_batch(1 min)
+group by sensorId;

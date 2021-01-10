@@ -1,0 +1,19 @@
+
+@Name("OpenWallGreenhouse")
+insert into OpenWallGreenhouse 
+select sr.sensorId as sensorId, sr.windForce as windForce, sr.isRaining as isRaining,
+       sr.roomTemperature as roomTemperature
+from pattern [
+    every sr = SmartRural(
+        windForce < 0.5,
+        isRaining < 0.5,
+        roomTemperature > 25 // grade celcius
+    )
+].win:time_batch(1 minutes); // 1 min, TODO: change it to 1 hour
+
+@Name("CanOpenWallGreenhouse")
+insert into CanOpenWallGreenhouse
+select count(sensorId) as numEvents, (count(sensorId) > 1) as canOpen
+from OpenWallGreenhouse.win:time_batch(1 min)
+group by sensorId
+having count(sensorId) > 1; // change to a number more big

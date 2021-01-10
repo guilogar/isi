@@ -1,0 +1,6 @@
+create schema SmartRural(
+   sensorId int, roomTemperature double, airHumidity double, groundHumidity double,
+   litrePerMeterWater double, windForce double, windDirection double, isRaining double,
+   isCeilingGreenhouseOpen double, isWallGreenhouseOpen double, countIllumination double,
+   isAtDaytime double, canPhotosynthesisImprove double
+);

@@ -1,20 +1,15 @@
 import {
-    IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, 
-    IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonFab, 
-    IonFabButton, IonFabList, IonHeader, IonIcon, IonItem, IonItemOption, 
-    IonItemOptions, IonItemSliding, IonLabel, IonList, IonListHeader, 
-    IonMenuButton, IonPage, IonText, IonTitle, IonToolbar
+    IonButtons, IonContent,IonHeader,IonItem, IonList, 
+    IonMenuButton, IonPage, IonTitle, IonToolbar
 } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import './SmartRural.css';
-import {
-    addCircle, arrowBackCircle, key, add, addCircleOutline,
-    timeOutline, folderOpen, calendarOutline, cardOutline
-} from 'ionicons/icons';
-import { Line, Bar, Pie , Doughnut} from 'react-chartjs-2';
+import { Bar, Doughnut} from 'react-chartjs-2';
 
 import axios from 'axios';
+
+const urlBase : string = 'http://localhost:3000/api/v1/smartrural';
 
 const SmartRural: React.FC = (props) => {
 
@@ -62,7 +57,7 @@ const SmartRural: React.FC = (props) => {
 
     async function getSensors()
     {
-        const data : any = await getDataAxios('http://localhost:3000/api/v1/smartrural');
+        const data : any = await getDataAxios(urlBase);
         const { count } = data.data;
 
         let sensors : Array<number> = [];
@@ -83,10 +78,10 @@ const SmartRural: React.FC = (props) => {
     async function getEventsCount()
     {
         const urls : Array<string> = [
-            'http://localhost:3000/api/v1/smartrural/OpenCeilingGreenHouse',
-            'http://localhost:3000/api/v1/smartrural/Irrigate',
-            'http://localhost:3000/api/v1/smartrural/CanFertilizer',
-            'http://localhost:3000/api/v1/smartrural/CanOpenWallGreenhouse'
+            urlBase + '/OpenCeilingGreenHouse',
+            urlBase + '/Irrigate',
+            urlBase + '/CanFertilizer',
+            urlBase + '/CanOpenWallGreenhouse'
         ];
 
         let eventsCount : Array<number> = [];

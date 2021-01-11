@@ -31,6 +31,8 @@ const useStyles = makeStyles((theme : any) => ({
   },
 }));
 
+const urlBase : string = 'http://localhost:3000/api/v1/smartrural';
+
 const Events: React.FC = () => {
 
   const { name } = useParams<{ name: string; }>();
@@ -47,7 +49,7 @@ const Events: React.FC = () => {
 
   async function getEvent(name : string)
   {
-    const url : string = 'http://localhost:3000/api/v1/smartrural/' + name;
+    const url : string = urlBase + '/' + name;
     return await getDataAxios(url);
   }
 

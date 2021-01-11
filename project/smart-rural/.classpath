@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="src/main/app/lib/mysql-connector-java-5.1.49.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.25.jar"/>
 	<classpathentry kind="src" path="src/main/app"/>
+	<classpathentry kind="con" path="MULE_LIB/Amazon S3/org.mule.tooling.ui.contribution.s3.3.5.0"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,0 +1,238 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{blindtext}
+\usepackage{adjustbox}
+\usepackage[toc,page]{appendix}
+\usepackage{enumitem}
+\setlist{  
+  listparindent=\parindent,
+  parsep=0pt,
+}
+\usepackage{listings}
+\usepackage{tabularx}  % for 'tabularx' environment and 'X' column type
+\usepackage{ragged2e}  % for '\RaggedRight' macro (allows hyphenation)
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X} 
+\usepackage{booktabs}  % for \toprule, \midrule, and \bottomrule macros 
+\usepackage[raggedright]{titlesec}
+\renewcommand{\lstlistingname}{Código}
+\usepackage[nottoc,notlot,notlof]{tocbibind}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{2}
+
+
+ %%%%%%%%%%%%%%% codigos %%%%%%%%%%%%%%% 
+ \usepackage[T1,OT1]{fontenc}
+\usepackage{color}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstdefinelanguage{oaw}{
+  morekeywords={import, let, then, Void, extension, JAVA,
+  IMPORT, DEFINE, ENDDEFINE, LET, ENDLET, FOR, FILE, ENDFILE, ITERATOR, FOREACH,
+  AS, IF, ENDFOREACH, ENDIF, EXPAND, INSTANCEOF, USING, SEPARATOR, CSTART, CEND, 
+  PROTECT, ENDPROTECT, ID, EXTENSION,   
+  context, ERROR, WARNING, INFO, enum},
+  morecomment=[s]{«REM»}{«ENDREM»},
+  morecomment=[s]{«REM}{»},
+  escapechar={@},
+  % required for use with UTF-8
+  literate={«}{\guillemotleft}{1}
+           {»}{\guillemotright}{1}
+}
+
+\lstdefinelanguage{xml}{
+  morekeywords={xml, workflow, bean, platformUri, registerEcoreFile, component, uri, modelSlot, metaModel, checkFile, property, emfAllChildrenSlot,directory, expand, outlet, postprocessor}
+}
+
+\lstdefinelanguage{emf}{
+  morekeywords={gmf,@Ecore,@namespace,class,package,attr,enum,@gmf,node,compartment,@gmf . compartment}
+}
+
+\lstdefinelanguage{atl}{
+  morekeywords={rule, from, to, helper, context, module, create, def}
+}
+ 
+\lstset{style=mystyle}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\textbf{
+  Manual de Usuario e Instalación\\SmartRural
+} \\ \small Ingeniería de Sistemas de la Información}
+\author{Guillermo López García}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[ht]
+    \centering
+	\includegraphics[scale=0.1]{uca.png}
+\end{figure}
+
+\clearpage
+
+\tableofcontents
+\clearpage
+
+\section{SDKman}
+Uno de los sistemas a instalar es el SDKman.
+
+Esta herramienta nos permitira instalar distintos SDK para el funcionamiento de la aplicación encargada de generar
+los datos aleatorios. Así pues, seguimos los pasos de \url{https://sdkman.io/install} y posteriormente pasamos
+a instalar las herramientas necesarias.
+
+\subsection{Java 8}
+Una vez tengamos SDKman instalado, instalar java es tán fácil como escribir: 
+
+sdk install java 8.0.265-open
+
+\subsection{Maven}
+Una vez tengamos instalado java, también necesitaremos maven. Para ello, escribimos en la consola de comandos:
+
+sdk install maven
+
+\section{Docker}
+En esta sección, aprenderemos a instalar docker.
+
+Este sistema de virtualización nos permitira virtualizar la base de datos y no tener que depender de una instalación
+en local obsoleta y en muchas ocasiones, imposible de hacer con un versión actual de un sistema operativo moderno como
+Windows 10, Linux en cualquier de sus variantes, Mac OSX, etc.
+
+Así pues, con seguir las instrucciones escritas en el siguiente enlace,
+\url{https://docs.docker.com/engine/install/},
+tendríamos instalado docker en el sistema que queremos.
+
+\subsection{docker-compose}
+Pero docker solo no nos sirve, nos sirve una variante o herramienta del mismo llamado docker-compose, que sirve
+para generar contenedores y servicios de forma fácil y sencilla con un simple fichero.
+
+Así pues, seguimos las instrucciones siguientes \url{https://docs.docker.com/compose/install/}, tendriamos el
+docker-compose instalado en nuestro sistema.
+
+\subsection{MySQL}
+Por último, para levantar el servicio MySQL, escribiremos el comando docker-compose up -d, en el mismo directorio
+que donde se encuentre el fichero \textbf{docker-compose.yml} que tiene el siguiente contenido.
+
+\begin{lstlisting}[language=xml,caption=docker-compose.yml]
+  version: '3.3'
+  services:
+    smartrural:
+      image: mysql:5.7
+      restart: always
+      environment:
+        MYSQL_DATABASE: 'smartrural'
+        MYSQL_USER: isi
+        MYSQL_PASSWORD: 'isi'
+        MYSQL_ROOT_PASSWORD: 'root'
+      ports:
+        - '3306:3306'
+      expose:
+        - '3306'
+      volumes:
+        - smartrural:/var/lib/mysql
+  volumes:
+    smartrural:
+\end{lstlisting}
+
+Además, si se quiere usar datos de ejemplo, se podría importar el fichero smartrural dump
+con extensión sql con el siguiente comando:
+
+\textbf{mysql -h 127.0.0.1 -u root -P 3306 -p smartrural < smartrural dump.sql}
+
+\section{NVM}
+Por otra parte, en la instalación de NodeJS, para seguir la misma dinámica que anteriormente, vamos
+a usar un gestor de instalación de NodeJs. En concreto, vamos a usar el Node Version Manager.
+
+Para instalarlo, no hay más que seguir los pasos descritos en el
+siguiente enlace: \url{https://github.com/nvm-sh/nvm}
+
+\subsection{NodeJS}
+Una vez tengamos instalado correctamente NVM, instalar NodeJS es tán fácil como escribir
+nvm install 14
+
+Notesé que hemos instalado la versión 14, pero podríamos instalar cualquiera anterior o posterior.
+
+\subsection{NPM}
+NPM se instala automáticamente al instalar la versión de NodeJS, con lo cual, no hay que hacer nada extra.
+
+\section{Ionic}
+Para instalar Ionic en su última versión, la cuál permite crear y ejecutar proyectos con React.JS, 
+se debe ejecutar el siguiente comando: \textbf{npm install -g @ionic/cli}
+
+Para saber si esta correctamente instalado, ejecutar posteriormente \textbf{ionic --version}
+
+\section{Anypoint Studio}
+Para instalar Anypoint Studio, es tán sencillo como ir a la siguiente url
+\url{https://www.mulesoft.com/lp/dl/studio/previous}, seleccionar 
+\textbf{Mule 3.9 and Studio 6.6}, seleccionar tu sistema operativo y darle a descargar.
+
+Una vez lo tengamos instalado, lo ejecutamos y listo. Gracias a la versión 8 de Java instalada antes,
+no deberiamos tener ningún problema.
+
+\section{Ejecución del Proyecto}
+Aquí, mostraremos los pasos a seguir para ejecutar el proyecto de forma correcta:
+
+\begin{itemize}
+  \item Generar datos: java -jar AutomationSimulatorRefactor-1.0-SNAPSHOT-jar-with-dependencies.jar.
+  \item MySQL: levantamos la base de datos con docker-compose up -d.
+  \item Anypoint Studio: abrimos el proyecto con el Anypoint Studio y le damos a ejecutar.
+  \item Backend: nos movemos al directorio del backend y escribimos \textbf{node .}
+  \item Frontend: nos movemos al directorio del frontend y escribimos \textbf{ionic serve}
+  \item Navegador: abrimos el navegador en la dirección http://localhost:8100 y listo para usar el entorno.
+\end{itemize}
+
+Por último, si queremos que el proyecto en Anypoint Studio funcione con nuestras credenciales, deberemos ir
+al archivo \textbf{smart-rural/src/main/app/mule-app.properties} y poner los valores que queramos a las credenciales
+del email y el path de los directorios de nuestros eventos.
+
+Mostramos a continuación el contenido del mismo:
+
+\begin{lstlisting}[language=xml,caption=mule-app.properties]
+    #** GENERATED CONTENT ** Mule Custom Properties file.
+    #Wed Nov 11 10:04:08 CET 2020
+    email.username=xxxxxxxxxxx@gmail.com
+    email.from=xxxxxxxxxxxxxxx@gmail.com
+    email.password=xxxxxxxxxxxxxxxxxx
+    email.to=xxxxxxxxxxxxxxxx@gmail.com
+    patterns.path=/home/guilogar
+\end{lstlisting}
+
+Claro esta, el valor de las credenciales de email ha sido cambiado para proteger nuestra privacidad.
+
+\clearpage
+
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{bib}
+
+\end{document}

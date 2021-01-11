@@ -24,7 +24,7 @@ const SmartRural: React.FC = (props) => {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
             {
-                label: 'My First dataset',
+                label: 'Relación entre sensor y valores',
                 backgroundColor: 'rgba(255,99,132,0.2)',
                 borderColor: 'rgba(255,99,132,1)',
                 borderWidth: 1,
@@ -71,16 +71,11 @@ const SmartRural: React.FC = (props) => {
 
             <IonList>
                 <IonItem>
-                    //Bind the Bar Chart with the Data
                     <Bar data={barChartData}
                         options={{ maintainAspectRatio: true}}   />
                 </IonItem>
                 <IonItem>
                     <Doughnut data={doughnutChartData}
-                        options={{ maintainAspectRatio: true}}   />
-                </IonItem>
-                <IonItem>
-                    <Pie data={doughnutChartData}
                         options={{ maintainAspectRatio: true}}   />
                 </IonItem>
             </IonList>

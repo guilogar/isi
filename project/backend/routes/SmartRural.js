@@ -74,7 +74,7 @@ router.get('/CanFertilizer', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        data: await CanOpenWallGreenhouse.findAll()
+        data: await CanFertilizer.findAll()
     });
 });
 
@@ -82,7 +82,7 @@ router.get('/CanOpenWallGreenhouse', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        data: await CanFertilizer.findAll()
+        data: await CanOpenWallGreenhouse.findAll()
     });
 });
 

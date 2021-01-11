@@ -10,7 +10,8 @@ Irrigate.init({
         autoIncrement: true,
         primaryKey: true
     },
-    date: DataTypes.DATE
+    date: DataTypes.DATE,
+    message: DataTypes.STRING
 }, {
     sequelize,
     modelName: 'Irrigate',

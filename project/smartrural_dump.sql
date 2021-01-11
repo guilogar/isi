@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS `CanFertilizer`;
 CREATE TABLE `CanFertilizer` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `message` varchar(500) NOT NULL DEFAULT 'Mensaje generico para poder fertilizar el invernadero',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -35,7 +36,7 @@ CREATE TABLE `CanFertilizer` (
 
 LOCK TABLES `CanFertilizer` WRITE;
 /*!40000 ALTER TABLE `CanFertilizer` DISABLE KEYS */;
-INSERT INTO `CanFertilizer` VALUES (1,'2021-01-11 15:56:29');
+INSERT INTO `CanFertilizer` VALUES (1,'2021-01-11 15:56:29','Mensaje generico para poder fertilizar el invernadero');
 /*!40000 ALTER TABLE `CanFertilizer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -49,6 +50,7 @@ DROP TABLE IF EXISTS `CanOpenWallGreenhouse`;
 CREATE TABLE `CanOpenWallGreenhouse` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `message` varchar(500) NOT NULL DEFAULT 'Mensaje generico para la apertura de la pared del invernadero',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -59,7 +61,7 @@ CREATE TABLE `CanOpenWallGreenhouse` (
 
 LOCK TABLES `CanOpenWallGreenhouse` WRITE;
 /*!40000 ALTER TABLE `CanOpenWallGreenhouse` DISABLE KEYS */;
-INSERT INTO `CanOpenWallGreenhouse` VALUES (1,'2021-01-11 15:56:38');
+INSERT INTO `CanOpenWallGreenhouse` VALUES (1,'2021-01-11 15:56:38','Mensaje generico para la apertura de la pared del invernadero');
 /*!40000 ALTER TABLE `CanOpenWallGreenhouse` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -73,6 +75,7 @@ DROP TABLE IF EXISTS `Irrigate`;
 CREATE TABLE `Irrigate` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `message` varchar(500) NOT NULL DEFAULT 'Mensaje generico para poder regar el invernadero',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -83,7 +86,7 @@ CREATE TABLE `Irrigate` (
 
 LOCK TABLES `Irrigate` WRITE;
 /*!40000 ALTER TABLE `Irrigate` DISABLE KEYS */;
-INSERT INTO `Irrigate` VALUES (1,'2021-01-11 15:56:48');
+INSERT INTO `Irrigate` VALUES (1,'2021-01-11 15:56:48','Mensaje generico para poder regar el invernadero');
 /*!40000 ALTER TABLE `Irrigate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -97,6 +100,7 @@ DROP TABLE IF EXISTS `OpenCeilingGreenHouse`;
 CREATE TABLE `OpenCeilingGreenHouse` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `message` varchar(500) NOT NULL DEFAULT 'Mensaje generico para la apertura del techo del invernadero',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -107,7 +111,7 @@ CREATE TABLE `OpenCeilingGreenHouse` (
 
 LOCK TABLES `OpenCeilingGreenHouse` WRITE;
 /*!40000 ALTER TABLE `OpenCeilingGreenHouse` DISABLE KEYS */;
-INSERT INTO `OpenCeilingGreenHouse` VALUES (1,'2021-01-11 15:56:57');
+INSERT INTO `OpenCeilingGreenHouse` VALUES (1,'2021-01-11 15:56:57','Mensaje generico para la apertura del techo del invernadero');
 /*!40000 ALTER TABLE `OpenCeilingGreenHouse` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -157,4 +161,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-11 17:33:19
+-- Dump completed on 2021-01-11 18:38:49

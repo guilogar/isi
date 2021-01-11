@@ -20,23 +20,27 @@ create table SmartRural(
 drop table if exists OpenCeilingGreenHouse;
 create table OpenCeilingGreenHouse(
     id     bigint auto_increment primary key,
-    `date` timestamp not null default current_timestamp
+    `date` timestamp not null default current_timestamp,
+    message varchar(500) not null default 'Mensaje generico para la apertura del techo del invernadero'
 );
 
 drop table if exists Irrigate;
 create table Irrigate(
     id     bigint auto_increment primary key,
-    `date` timestamp not null default current_timestamp
+    `date` timestamp not null default current_timestamp,
+    message varchar(500) not null default 'Mensaje generico para poder regar el invernadero'
 );
 
 drop table if exists CanFertilizer;
 create table CanFertilizer(
     id     bigint auto_increment primary key,
-    `date` timestamp not null default current_timestamp
+    `date` timestamp not null default current_timestamp,
+    message varchar(500) not null default 'Mensaje generico para poder fertilizar el invernadero'
 );
 
 drop table if exists CanOpenWallGreenhouse;
 create table CanOpenWallGreenhouse(
-    id     bigint auto_increment primary key,
-    `date` timestamp not null default current_timestamp
+    id      bigint auto_increment primary key,
+    `date`  timestamp not null default current_timestamp,
+    message varchar(500) not null default 'Mensaje generico para la apertura de la pared del invernadero'
 );

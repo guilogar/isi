@@ -11,6 +11,12 @@ CanOpenWallGreenhouse.init({
         primaryKey: true
     },
     date: DataTypes.DATE
-}, { sequelize, modelName: 'CanOpenWallGreenhouse' });
+}, {
+    sequelize,
+    modelName: 'CanOpenWallGreenhouse',
+    freezeTableName: true,
+    tableName: 'CanOpenWallGreenhouse',
+    timestamps: false,
+});
 
 module.exports = CanOpenWallGreenhouse;

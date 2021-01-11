@@ -11,6 +11,12 @@ OpenCeilingGreenHouse.init({
         primaryKey: true
     },
     date: DataTypes.DATE
-}, { sequelize, modelName: 'OpenCeilingGreenHouse' });
+}, {
+    sequelize,
+    modelName: 'OpenCeilingGreenHouse',
+    freezeTableName: true,
+    tableName: 'OpenCeilingGreenHouse',
+    timestamps: false,
+});
 
 module.exports = OpenCeilingGreenHouse;

@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({
 
 const SmartRural = require('./routes/SmartRural');
 
-app.use(baseAPI + '/SmartRural', SmartRural);
+app.use(baseAPI + '/smartrural', SmartRural);
 
 const server = http.createServer(app);
 

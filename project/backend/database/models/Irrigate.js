@@ -11,6 +11,12 @@ Irrigate.init({
         primaryKey: true
     },
     date: DataTypes.DATE
-}, { sequelize, modelName: 'Irrigate' });
+}, {
+    sequelize,
+    modelName: 'Irrigate',
+    freezeTableName: true,
+    tableName: 'Irrigate',
+    timestamps: false,
+});
 
 module.exports = Irrigate;

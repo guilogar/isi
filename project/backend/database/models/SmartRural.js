@@ -24,6 +24,12 @@ SmartRural.init({
     isAtDaytime:              DataTypes.BOOLEAN,
     canPhotosynthesisImprove: DataTypes.BOOLEAN,
     date:                     DataTypes.DATE
-}, { sequelize, modelName: 'SmartRural' });
+}, {
+    sequelize,
+    modelName: 'SmartRural',
+    freezeTableName: true,
+    tableName: 'SmartRural',
+    timestamps: false,
+});
 
 module.exports = SmartRural;

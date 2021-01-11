@@ -37,11 +37,13 @@ router.get('/', async (req, res) => {
     if(Object.keys(whereSmartRural).length === 0)
     {
         smartRural = await SmartRural.findAll({
+            attributes: ['sensorId'],
             group: ['sensorId']
         });
     } else
     {
         smartRural = await SmartRural.findAll({
+            attributes: ['sensorId'],
             where: whereSmartRural,
             group: ['sensorId']
         });

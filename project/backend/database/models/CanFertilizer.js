@@ -11,6 +11,12 @@ CanFertilizer.init({
         primaryKey: true
     },
     date: DataTypes.DATE
-}, { sequelize, modelName: 'CanFertilizer' });
+}, {
+    sequelize,
+    modelName: 'CanFertilizer',
+    freezeTableName: true,
+    tableName: 'CanFertilizer',
+    timestamps: false,
+});
 
 module.exports = CanFertilizer;

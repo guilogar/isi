@@ -3,10 +3,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { 
-    SmartRural, OpenCeilingGreenHouse, Irrigate,
-    CanOpenWallGreenhouse, CanFertilizer
-} = require('../database/models');
+const SmartRural            = require('../database/models/SmartRural');
+const Irrigate              = require('../database/models/Irrigate');
+const OpenCeilingGreenHouse = require('../database/models/OpenCeilingGreenHouse');
+const CanFertilizer         = require('../database/models/CanFertilizer');
+const CanOpenWallGreenhouse = require('../database/models/CanOpenWallGreenhouse');
+
 const sequelize = require('../database/sequelize');
 
 router.get('/', async (req, res) => {

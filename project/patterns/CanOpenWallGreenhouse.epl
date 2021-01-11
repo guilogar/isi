@@ -1,4 +1,3 @@
-
 @Name("OpenWallGreenhouse")
 insert into OpenWallGreenhouse 
 select sr.sensorId as sensorId, sr.windForce as windForce, sr.isRaining as isRaining,

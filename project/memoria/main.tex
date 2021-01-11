@@ -170,6 +170,284 @@ Así pues, empezamos a listar:
         para hacerlo amigable, multiplataforma y bonito.
 \end{itemize}
 
+Todo este conjunto de tecnologías es lo que nos permite alcanzar la máxima eficiencia y la mayor
+independencia de los datos y de los resultados.
+
+Así pues, pasaremos a listar el código de los eventos y la definición de la base de datos,
+junto con el código xml del simulador, que es lo 
+que más llamativo puede ser y menos relleno es. Por motivos obvios, no vamos a listar todo el codigo del
+backend ni del frontend, ya que, es un código demasiado largo y que no aporta
+nada a la compresión de la memoria.
+
+Así pues, listamos los eventos:
+
+\begin{lstlisting}[language=xml,caption=OpenCeilingGreenHouse.epl]
+    @Name("OpenCeilingGreenHouse") 
+    insert into OpenCeilingGreenHouse
+    select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining
+    from pattern [
+      every sr = SmartRural(
+          isAtDaytime >= 0.5,
+          isRaining >= 0.5
+      )
+    ];
+\end{lstlisting}
+
+\begin{lstlisting}[language=xml,caption=Irrigate.epl]
+    @Name("Irrigate") 
+    insert into Irrigate 
+    select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+          sr.airHumidity as airHumidity, sr.roomTemperature as roomTemperature
+    from pattern [
+        every
+            sr = SmartRural(
+                isAtDaytime >= 0.5,
+                isRaining < 0.5,
+                airHumidity >= 2.5,
+                roomTemperature < 25 // grade celsius
+            )
+    ];
+\end{lstlisting}
+
+\begin{lstlisting}[language=xml,caption=CanOpenWallGreenhouse.epl]
+    @Name("OpenWallGreenhouse")
+    insert into OpenWallGreenhouse 
+    select sr.sensorId as sensorId, sr.windForce as windForce, sr.isRaining as isRaining,
+          sr.roomTemperature as roomTemperature
+    from pattern [
+        every sr = SmartRural(
+            windForce < 0.5,
+            isRaining < 0.5,
+            roomTemperature > 25 // grade celcius
+        )
+    ].win:time_batch(1 minutes); // 1 min, TODO: change it to 1 hour
+
+    @Name("CanOpenWallGreenhouse")
+    insert into CanOpenWallGreenhouse
+    select count(sensorId) as numEvents, (count(sensorId) > 1) as canOpen
+    from OpenWallGreenhouse.win:time_batch(1 min)
+    group by sensorId
+    having count(sensorId) > 1; // change to a number more big
+\end{lstlisting}
+
+\begin{lstlisting}[language=xml,caption=CanFertilizer.epl]
+    @Name("Fertilizer") 
+    insert into Fertilizer 
+    select sr.sensorId as sensorId, sr.isAtDaytime as isAtDaytime, sr.isRaining as isRaining,
+          sr.airHumidity as airHumidity, sr.canPhotosynthesisImprove as canPhotosynthesisImprove
+    from pattern [
+        every sr = SmartRural(
+            isAtDaytime >= 0.5,
+            isRaining >= 0.5,
+            airHumidity < 1,
+            canPhotosynthesisImprove >= 0.5
+        ) -> timer:at(1, *, *, *, *) // 1 min, TODO: change it to 5 days
+    ];
+
+    @Name("CanFertilizer")
+    insert into CanFertilizer
+    select sensorId
+    from Fertilizer.win:time_batch(1 min)
+    group by sensorId;
+\end{lstlisting}
+
+A continuacón, la definición de la base de datos:
+
+\begin{lstlisting}[language=sql,caption=SmartRural.sql]
+    drop table if exists SmartRural;
+    create table SmartRural(
+        id                       bigint auto_increment primary key,
+        sensorId                 bigint,
+        roomTemperature          float,
+        airHumidity              float,
+        groundHumidity           float,
+        litrePerMeterWater       float,
+        windForce                float,
+        windDirection            float,
+        countIllumination        float,
+        isRaining                tinyint(1),
+        isCeilingGreenhouseOpen  tinyint(1),
+        isWallGreenhouseOpen     tinyint(1),
+        isAtDaytime              tinyint(1),
+        canPhotosynthesisImprove tinyint(1),
+        `date`                   timestamp not null default current_timestamp
+    );
+
+    drop table if exists OpenCeilingGreenHouse;
+    create table OpenCeilingGreenHouse(
+        id     bigint auto_increment primary key,
+        `date` timestamp not null default current_timestamp,
+        message varchar(500) not null default 'Mensaje generico para la apertura del techo del invernadero'
+    );
+
+    drop table if exists Irrigate;
+    create table Irrigate(
+        id     bigint auto_increment primary key,
+        `date` timestamp not null default current_timestamp,
+        message varchar(500) not null default 'Mensaje generico para poder regar el invernadero'
+    );
+
+    drop table if exists CanFertilizer;
+    create table CanFertilizer(
+        id     bigint auto_increment primary key,
+        `date` timestamp not null default current_timestamp,
+        message varchar(500) not null default 'Mensaje generico para poder fertilizar el invernadero'
+    );
+
+    drop table if exists CanOpenWallGreenhouse;
+    create table CanOpenWallGreenhouse(
+        id      bigint auto_increment primary key,
+        `date`  timestamp not null default current_timestamp,
+        message varchar(500) not null default 'Mensaje generico para la apertura de la pared del invernadero'
+    );
+\end{lstlisting}
+
+Por último, aquí el código xml del simulador:
+
+\begin{lstlisting}[language=xml,caption=smart-rural.xml]
+  <?xml version="1.0" encoding="UTF-8"?>
+
+  <mule xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs" xmlns:s3="http://www.mulesoft.org/schema/mule/s3" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:jbossts="http://www.mulesoft.org/schema/mule/jbossts" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:spring="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+  http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+  http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
+  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+  http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+  http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+  http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/smtps/current/mule-smtps.xsd
+  http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+  http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/jbossts/current/mule-jbossts.xsd
+  http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+  http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+  http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd">
+      <http:request-config name="HTTP_Request_Configuration" host="api.thingspeak.com" port="80" doc:name="HTTP Request Configuration"/>
+    <vm:connector name="VM" validateConnections="true" doc:name="VM"/>
+    <vm:endpoint exchange-pattern="one-way" path="ComplexEventConsumerPath" name="ComplexEventConsumerGlobalVM" doc:name="VM"/>
+    <db:mysql-config name="MySQL_Configuration" host="127.0.0.1" port="3306" user="isi" password="isi" database="smartrural" doc:name="MySQL Configuration"/>
+    <s3:config name="Amazon_S3__Basic_Configuration" accessKey="AKIAIRCGR4L5ZHCTWZEA" secretKey="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" doc:name="Amazon S3: Basic Configuration"/>
+    <sqs:config name="Amazon_SQS__Configuration" accessKey="AKIAIRCGR4L5ZHCTWZEA" secretKey="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" defaultQueueName="smartrural-isi" doc:name="Amazon SQS: Configuration"/>
+      <flow name="smartruralFlow">
+          <quartz:inbound-endpoint jobName="j1" repeatInterval="60000" responseTimeout="10000" doc:name="Quartz">
+              <quartz:event-generator-job/>
+          </quartz:inbound-endpoint>
+          <scatter-gather doc:name="Scatter-Gather">
+              <http:request config-ref="HTTP_Request_Configuration" path="/channels/1252445/feed.json?results=1" method="GET" doc:name="HTTP Smart Rural 1"/>
+              <http:request config-ref="HTTP_Request_Configuration" path="/channels/1252453/feed.json?results=1" method="GET" doc:name="HTTP Smart Rural 2"/>
+          </scatter-gather>
+      <collection-splitter doc:name="Collection Splitter"/>
+          <custom-transformer class="transformers.JsonToSmartRuralTransformer" doc:name="JSON to SmartRural Transformer"/>
+      <scatter-gather doc:name="Scatter-Gather">
+        <processor-chain>
+          <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+          <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into SmartRural(
+      sensorId, roomTemperature, airHumidity, groundHumidity, litrePerMeterWater, windForce, windDirection, countIllumination,
+      isRaining, isCeilingGreenhouseOpen, isWallGreenhouseOpen, isAtDaytime, canPhotosynthesisImprove
+  )
+  values(
+    #[payload.SmartRural.sensorId], #[payload.SmartRural.roomTemperature], #[payload.SmartRural.airHumidity],
+    #[payload.SmartRural.groundHumidity], #[payload.SmartRural.litrePerMeterWater], #[payload.SmartRural.windForce],
+    #[payload.SmartRural.windDirection], #[payload.SmartRural.countIllumination], #[payload.SmartRural.isRaining],
+    #[payload.SmartRural.isCeilingGreenhouseOpen], #[payload.SmartRural.isWallGreenhouseOpen],
+    #[payload.SmartRural.isAtDaytime], #[payload.SmartRural.canPhotosynthesisImprove]
+  );]]></db:parameterized-query>
+          </db:insert>
+        </processor-chain>
+        <processor-chain>
+          <component doc:name="Send Event to Esper">
+            <singleton-object class="esper.SendEventToEsperComponent"/>
+          </component>
+          <sqs:send-message config-ref="Amazon_SQS__Configuration" doc:name="Amazon SQS">
+            <sqs:message messageBody="Procesando datos .... #[server.dateTime]"/>
+          </sqs:send-message>
+        </processor-chain>
+      </scatter-gather>
+      </flow>
+    <flow name="smartruralFlow1">
+      <vm:inbound-endpoint exchange-pattern="one-way"  doc:name="Complex Event Consumer" ref="ComplexEventConsumerGlobalVM">
+        <xa-transaction action="NONE"/>
+      </vm:inbound-endpoint>
+      <choice tracking:enable-default-events="true" doc:name="Choice">
+        <when expression="#[message.inboundProperties['eventPatternName'] == 'OpenCeilingGreenHouse']" >
+          <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into OpenCeilingGreenHouse(
+      date
+  )
+  values(
+    now()
+  );]]></db:parameterized-query>
+          </db:insert>
+          </when>
+          <when expression="#[message.inboundProperties['eventPatternName'] == 'Irrigate']" >
+          <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into SmartRural(
+      date
+  )
+  values(
+    now()
+  );]]></db:parameterized-query>
+          </db:insert>
+          </when>
+          <when expression="#[message.inboundProperties['eventPatternName'] == 'CanFertilizer']" >
+          <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into SmartRural(
+      date
+  )
+  values(
+    now()
+  );]]></db:parameterized-query>
+          </db:insert>
+          </when>
+          <when expression="#[message.inboundProperties['eventPatternName'] == 'CanOpenWallGreenhouse']" >
+          <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[insert into SmartRural(
+      sensorId, roomTemperature, airHumidity, groundHumidity, litrePerMeterWater, windForce, windDirection, countIllumination,
+      isRaining, isCeilingGreenhouseOpen, isWallGreenhouseOpen, isAtDaytime, canPhotosynthesisImprove
+  )
+  values(
+    #[payload.SmartRural.sensorId], #[payload.SmartRural.roomTemperature], #[payload.SmartRural.airHumidity],
+    #[payload.SmartRural.groundHumidity], #[payload.SmartRural.litrePerMeterWater], #[payload.SmartRural.windForce],
+    #[payload.SmartRural.windDirection], #[payload.SmartRural.countIllumination], #[payload.SmartRural.isRaining],
+    #[payload.SmartRural.isCeilingGreenhouseOpen], #[payload.SmartRural.isWallGreenhouseOpen],
+    #[payload.SmartRural.isAtDaytime], #[payload.SmartRural.canPhotosynthesisImprove]
+  );]]></db:parameterized-query>
+          </db:insert>
+          </when>
+        <otherwise>
+          <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+              <set-payload value="Detected Alert '#[message.inboundProperties['eventPatternName']]': #[payload]" doc:name="Set Payload"/>
+              <smtps:outbound-endpoint host="smtp.gmail.com" port="465" user="${email.username}" password="${email.password}" to="${email.to}" from="${email.from}" subject="Detected Alert" responseTimeout="10000" doc:name="SMTP"/>
+            </processor-chain>
+            <logger message="***Complex Event: #[payload]" level="INFO" doc:name="Logger"/>
+          </scatter-gather>
+        </otherwise>
+      </choice>
+    </flow>
+    <flow name="smartruralFlow2">
+      <file:inbound-endpoint path="${patterns.path}/event-patterns" moveToDirectory="${patterns.path}/deployed-pattern" pollingFrequency="2000" fileAge="1000" responseTimeout="10000" doc:name="New EPL Event Pattern">
+        <file:filename-regex-filter pattern=".+\.epl" caseSensitive="true"/>
+      </file:inbound-endpoint>
+      <s3:create-object config-ref="Amazon_S3__Basic_Configuration" bucketName="smartrural-isi" key="#[message.inboundProperties.originalFilename]" doc:name="Amazon S3"/>
+      <file:file-to-string-transformer doc:name="File to String"/>
+      <component doc:name="Add Event Pattern To Esper">
+        <singleton-object class="esper.AddEventPatternToEsperComponent"/>
+      </component>
+      <choice-exception-strategy doc:name="Choice Exception Strategy">
+        <catch-exception-strategy when="exception.causeMatches('com.espertech.esper.*')" enableNotifications="false" logException="false" doc:name="Catch Exception Strategy">
+          <file:outbound-endpoint path="${patterns.path}/incorrect-pattern" responseTimeout="10000" doc:name="File"/>
+          <sqs:send-message config-ref="Amazon_SQS__Configuration" doc:name="Amazon SQS">
+            <sqs:message messageBody="Error a la hora de procesar el fichero #[message.inboundProperties.originalFilename]-error"/>
+          </sqs:send-message>
+        </catch-exception-strategy>
+      </choice-exception-strategy>
+    </flow>
+  </mule>
+\end{lstlisting}
+
 \section{Pruebas}
 Las únicas pruebas realizadas del entorno han sido pruebas manuales de flujo, es decir, 
 se ha probado manualmente a lanzar el generador de datos y que el flujo del anypoint los

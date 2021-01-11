@@ -36,13 +36,13 @@ router.get('/', async (req, res) => {
 
     if(Object.keys(whereSmartRural).length === 0)
     {
-        smartRural = await SmartRural.findAll({
+        smartRural = await SmartRural.findAndCountAll({
             attributes: ['sensorId'],
             group: ['sensorId']
         });
     } else
     {
-        smartRural = await SmartRural.findAll({
+        smartRural = await SmartRural.findAndCountAll({
             attributes: ['sensorId'],
             where: whereSmartRural,
             group: ['sensorId']
@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
     }
 
     res.status(200).send({
-        smartRural: smartRural
+        data: smartRural
     });
 });
 
@@ -58,7 +58,7 @@ router.get('/OpenCeilingGreenHouse', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        OpenCeilingGreenHouse: await OpenCeilingGreenHouse.findAll()
+        data: await OpenCeilingGreenHouse.findAll()
     });
 });
 
@@ -66,7 +66,7 @@ router.get('/Irrigate', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        Irrigate: await Irrigate.findAll()
+        data: await Irrigate.findAll()
     });
 });
 
@@ -74,7 +74,7 @@ router.get('/CanFertilizer', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        CanFertilizer: await CanOpenWallGreenhouse.findAll()
+        data: await CanOpenWallGreenhouse.findAll()
     });
 });
 
@@ -82,7 +82,7 @@ router.get('/CanOpenWallGreenhouse', async (req, res) => {
     await sequelize.sync();
 
     res.status(200).send({
-        CanOpenWallGreenhouse: await CanFertilizer.findAll()
+        data: await CanFertilizer.findAll()
     });
 });
 

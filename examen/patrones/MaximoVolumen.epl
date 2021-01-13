@@ -3,5 +3,5 @@ insert into MaximoVolumen
 select idSensor as idSensor,
        max(tiempoDurmiendo) as maxTiempoDurmiendo,
        "maximo tiempo durmiendo!" as description
-from EventoAgua.win:time_batch(30 minutes)
+from EventoAgua.win:time(30 minutes)
 group by idSensor;

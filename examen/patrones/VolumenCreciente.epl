@@ -1,0 +1,23 @@
+@Name("VolumenCreciente") 
+insert into VolumenCreciente
+select ea1.idSensor as idSensor1,
+       ea2.idSensor as idSensor2,
+       ea3.idSensor as idSensor3,
+       ea1.volumenL as volumenL1,
+       ea2.volumenL as volumenL2,
+       ea3.volumenL as volumenL3,
+       'volumen creciente!' as description
+from pattern [
+   every
+        ea1 = EventoAgua(
+            volumenL > 5
+        )
+        ->
+        ea2 = EventoAgua(
+            volumenL > ea1
+        )
+        ->
+        ea3 = EventoAgua(
+            volumenL > ea1 * 3
+        )
+];

@@ -2,7 +2,7 @@
 insert into AnomaliaTiempo
 select ea.idSensor as idSensor,
        ea.tiempoDurmiendo as tiempoDurmiendo,
-       'tiempo durmiendo negativo!' as description
+       "tiempo durmiendo negativo!" as description
 from pattern [
    every ea = EventoAgua(
       tiempoDurmiendo < 0

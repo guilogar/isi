@@ -6,7 +6,7 @@ select ea1.idSensor as idSensor1,
        ea1.volumenL as volumenL1,
        ea2.volumenL as volumenL2,
        ea3.volumenL as volumenL3,
-       'volumen creciente!' as description
+       "volumen creciente!" as description
 from pattern [
    every
         ea1 = EventoAgua(
@@ -14,10 +14,10 @@ from pattern [
         )
         ->
         ea2 = EventoAgua(
-            volumenL > ea1
+            volumenL > ea1.volumenL
         )
         ->
         ea3 = EventoAgua(
-            volumenL > ea1 * 3
+            volumenL > ea1.volumenL * 3
         )
 ];

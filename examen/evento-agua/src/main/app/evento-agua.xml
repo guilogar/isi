@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs" xmlns:s3="http://www.mulesoft.org/schema/mule/s3" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:jbossts="http://www.mulesoft.org/schema/mule/jbossts" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/smtps/current/mule-smtps.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/jbossts/current/mule-jbossts.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/s3 http://www.mulesoft.org/schema/mule/s3/current/mule-s3.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd">
+    <http:request-config name="HTTP_Request_Configuration" host="api.thingspeak.com" port="80" doc:name="HTTP Request Configuration"/>
+	<vm:connector name="VM" validateConnections="true" doc:name="VM"/>
+	<vm:endpoint exchange-pattern="one-way" path="ComplexEventConsumerPath" name="ComplexEventConsumerGlobalVM" doc:name="VM"/>
+	<db:mysql-config name="MySQL_Configuration" host="127.0.0.1" port="3306" user="isi" password="isi" database="smartrural" doc:name="MySQL Configuration"/>
+	<s3:config name="Amazon_S3__Basic_Configuration" accessKey="AKIAIRCGR4L5ZHCTWZEA" secretKey="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" doc:name="Amazon S3: Basic Configuration"/>
+	<sqs:config name="Amazon_SQS__Configuration" accessKey="AKIAIRCGR4L5ZHCTWZEA" secretKey="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" defaultQueueName="smartrural-isi" doc:name="Amazon SQS: Configuration"/>
+	<http:request-config name="HTTP_Request_Configuration1" host="localhost" port="3001" doc:name="HTTP Request Configuration"/>
+    <flow name="evento-aguaFlow">
+        <quartz:inbound-endpoint jobName="j1" repeatInterval="60000" responseTimeout="10000" doc:name="Quartz">
+            <quartz:event-generator-job/>
+        </quartz:inbound-endpoint>
+		<http:request config-ref="HTTP_Request_Configuration" path="/channels/1282136/feed.json?results=1" method="GET" doc:name="HTTP Evento Agua"/>
+        <custom-transformer class="transformers.JsonToEventoAguaTransformer" doc:name="JSON to EventoAgua Transformer"/>
+		<scatter-gather doc:name="Scatter-Gather">
+			<processor-chain>
+				<logger message="#[payload]" level="INFO" doc:name="Logger"/>
+				<db:insert config-ref="MySQL_Configuration" doc:name="Database">
+					<db:parameterized-query><![CDATA[insert into EventoAgua(
+    idSensor, volumenL, tiempoDurmiendo, tipoSensor, tiempoRegistro
+)
+values(
+	#[payload.EventoAgua.idSensor], #[payload.EventoAgua.volumenL],
+	#[payload.EventoAgua.tiempoDurmiendo], #[payload.EventoAgua.tipoSensor],
+	#[payload.EventoAgua.tiempoRegistro]
+);]]></db:parameterized-query>
+				</db:insert>
+			</processor-chain>
+			<component doc:name="Send Event to Esper">
+				<singleton-object class="esper.SendEventToEsperComponent"/>
+			</component>
+		</scatter-gather>
+    </flow>
+	<flow name="evento-aguaFlow1">
+		<vm:inbound-endpoint exchange-pattern="one-way"  doc:name="Complex Event Consumer" ref="ComplexEventConsumerGlobalVM">
+			<xa-transaction action="NONE"/>
+		</vm:inbound-endpoint>
+		<http:request config-ref="HTTP_Request_Configuration1" path="/events" method="POST" doc:name="HTTP"/>
+	</flow>
+	<flow name="evento-aguaFlow2">
+		<file:inbound-endpoint path="${patterns.path}/event-patterns" moveToDirectory="${patterns.path}/deployed-pattern" pollingFrequency="2000" fileAge="1000" responseTimeout="10000" doc:name="New EPL Event Pattern">
+			<file:filename-regex-filter pattern=".+\.epl" caseSensitive="true"/>
+		</file:inbound-endpoint>
+		<file:file-to-string-transformer doc:name="File to String"/>
+		<component doc:name="Add Event Pattern To Esper">
+			<singleton-object class="esper.AddEventPatternToEsperComponent"/>
+		</component>
+		<choice-exception-strategy doc:name="Choice Exception Strategy">
+			<catch-exception-strategy when="exception.causeMatches('com.espertech.esper.*')" enableNotifications="false" logException="false" doc:name="Catch Exception Strategy">
+				<file:outbound-endpoint path="${patterns.path}/incorrect-pattern" responseTimeout="10000" doc:name="File"/>
+			</catch-exception-strategy>
+		</choice-exception-strategy>
+	</flow>
+</mule>
